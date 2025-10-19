@@ -209,11 +209,15 @@ function arabicToCistercian(num){
 
 // Simple deterministic hash -> 12-digit space
 function hashNumber(n){
-  // Fast, stable numeric hash from decimal input (not crypto)
-  let h=2166136261>>>0;
-  const str=String(n);
-  for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619)>>>0; }
-  return Number((h % 1_000_000_000_000n)); // 12 digits max
+  // FNV-1a style hash implemented with BigInt to avoid mixing BigInt and Number
+  let h = 2166136261n;
+  const str = String(n);
+  for (let i = 0; i < str.length; i++){
+    h ^= BigInt(str.charCodeAt(i));
+    h = (h * 16777619n) & 0xFFFFFFFFFFFFFFFFn; // keep within 64-bit
+  }
+  // return a 12-digit number (safe in Number, < 1e12)
+  return Number(h % 1000000000000n);
 }
 
 // amplitwistor ops from seed
@@ -387,7 +391,7 @@ const MiniGames = {
       vimgrove:    startVimGrove,
       swypestream: startSwypeStream,
       spellpop:    startSpellpop
-    }[id] || ( ()=>function(){}) )(seed);
+    }[id] || ( ()=>function(){}))(seed);
 
     this.current = { id, stop };
   },
@@ -594,7 +598,7 @@ function startLogicLab(seed){
 /* ------ Vim Grove ------ */
 function startVimGrove(seed){
   const {α,β,γ}=amplitwist(seed,2);
-  const motions = ["dw","x","dd","yy","p","u","gg","G","cw","ciw","r","0","$"];
+  const motions = ["dw","x","dd","yy","p","u","gg","G","cw","ciw","r","0","$"]; 
   const idx = Math.floor((α/(2*Math.PI))*motions.length) % motions.length;
   const target = motions[idx];
   const tempo  = 400 + 300*Math.abs(Math.sin(β));   // ms/beat
@@ -675,7 +679,7 @@ function startSwypeStream(seed){
 
     // distance to nearest segment
     let best=Infinity;
-    for(let i=0;i<pts.length-1;i++){
+    for(let i=0;i<pts.length-1;i++){ 
       const a=pts[i], b=pts[i+1];
       const ABx=b.x-a.x, ABy=b.y-a.y, APx=nx-a.x, APy=ny-a.y;
       const t=clamp((APx*ABx+APy*ABy)/((ABx*ABx+ABy*ABy)+1e-6),0,1);
@@ -759,7 +763,6 @@ function overlayMessage(text){
   twCtx.fillStyle='rgba(0,0,0,.6)'; twCtx.fillRect(0,0,twCV.width,twCV.height);
   twCtx.fillStyle='var(--accent-light)'; twCtx.font='22px Courier New'; twCtx.textAlign='center';
   twCtx.fillText(text, twCV.width/2, twCV.height/2);
-  twCtx.restore();
 }
 
 /* =========================
