@@ -527,6 +527,8 @@ function startLogicLab(seed){
     });
   }
 
+  const stopMessage = 'Circuit Stable';
+
   UI.hud.textContent = `Logic Lab — Goal lamp: ${targetHigh? 'HIGH':'LOW'}`;
   let raf=null, done=false;
 
@@ -552,7 +554,7 @@ function startLogicLab(seed){
   function onClick(ev){
     const x=ev.offsetX, y=ev.offsetY;
     for(const g of layout){
-      if(Math.abs(x-g.x)<42 && Math.abs(y-g.y)<22){
+      if(Math.abs(x-g.x)<42 && Math.abs(y=g.y)<22){
         if(rand()>0.5) g.a=!g.a; else g.b=!g.b;
         popSound(420, .1);
         break;
@@ -579,7 +581,7 @@ function startLogicLab(seed){
     twCtx.font='18px Courier New'; twCtx.fillStyle='var(--accent-light)';
     twCtx.fillText(`Target: ${targetHigh?'HIGH':'LOW'}`, twCV.width-90, twCV.height/2+52);
 
-    if(ok && !done){ done=true; popSound(640,.18); setTimeout(()=>stop('Circuit Stable'), 350); return; }
+    if(ok && !done){ done=true; popSound(640,.18); setTimeout(()=>stop(stopMessage), 350); return; }
     raf=requestAnimationFrame(draw);
   }
 
@@ -763,6 +765,7 @@ function overlayMessage(text){
   twCtx.fillStyle='rgba(0,0,0,.6)'; twCtx.fillRect(0,0,twCV.width,twCV.height);
   twCtx.fillStyle='var(--accent-light)'; twCtx.font='22px Courier New'; twCtx.textAlign='center';
   twCtx.fillText(text, twCV.width/2, twCV.height/2);
+  twCtx.restore();
 }
 
 /* =========================
