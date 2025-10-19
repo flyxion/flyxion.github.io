@@ -1,0 +1,955 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,amsfonts}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{natbib}
+\geometry{margin=1in}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=cyan}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{proposition}{Proposition}
+
+% Ensure no extra blank page
+\pagestyle{plain}
+
+\title{\textbf{Unistochastic Dynamics: From Discrete Transitions to the Entropic Continuum}}
+\author{Flyxion}
+\date{October 19, 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This monograph synthesizes Jacob Barandes’s Indivisible Stochastic Quantum Mechanics (ISQM), where unistochastic matrices \(\Gamma(t) = |U(t)|^2\) govern stochastic transitions in classical-like configuration spaces, with the Relativistic Scalar–Vector Plenum (RSVP), a field-theoretic framework encoding entropic flow. Unistochastic matrices, derived from unitary operators, replicate quantum phenomena such as interference and entanglement without postulating wavefunctions as ontological primitives. By coarse-graining RSVP’s field equations, these matrices emerge as discrete integrals of entropic flux, formalized via a functor \(\mathfrak{C}_1: \mathbf{RSVPField} \to \mathbf{UniStoch}\). RSVP completes quantum mechanics by embedding stochastic probabilities in a thermodynamic geometry, contrasting with Bohmian mechanics’ deterministic non-locality. Through derived geometry, BV–BRST quantization, semiclassical expansions, renormalization-group flows, and categorical structures, this work constructs a unified entropic mechanics bridging quantum stochasticity, thermodynamic smoothing, and cognitive coherence across scales.
+\end{abstract}
+
+\begin{keywords}
+unistochastic matrix, entropy geometry, shifted symplectic structure, stochastic quantization, derived stacks, AKSZ sigma model
+\end{keywords}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Preliminaries: Mathematical Foundations}
+
+To ensure rigor, we establish the mathematical prerequisites for unistochastic dynamics and the RSVP framework, addressing functional spaces, probabilistic normalization, and well-posedness.
+
+\subsection{Functional Spaces and Well-posedness}
+
+The RSVP fields \((\Phi, \mathbf{v}, S)\) are defined on a compact (1+3)-dimensional Lorentzian manifold \(\Sigma\) with boundary \(\partial \Sigma\), assumed to lie in Sobolev spaces \(H^1(\Sigma)\) for regularity, ensuring square-integrable first derivatives. The field equations are:
+\[
+\partial_t \Phi + \nabla \cdot (\Phi \mathbf{v}) = \sigma(S), \quad \partial_t S = D \nabla^2 S - \mathbf{v} \cdot \nabla S + f(\Phi),
+\]
+where \(\sigma(S) = -\kappa S^2\) and \(f(\Phi) = \lambda \Phi\) are Lipschitz continuous (\(\kappa, \lambda < \infty\)), ensuring well-posedness. The total probability is normalized:
+\[
+\int_\Sigma \Phi \, d^3x = 1.
+\]
+
+\begin{theorem}[Existence and Uniqueness]
+\label{thm:well-posedness}
+For initial data \((\Phi_0, \mathbf{v}_0, S_0) \in H^1(\Sigma) \times H^1(\Sigma, \mathbb{R}^3) \times H^1(\Sigma)\), with \(\int_\Sigma \Phi_0 \, d^3x = 1\), and \(\sigma, f \in C^1(\mathbb{R})\) Lipschitz with constants \(|\sigma'(S)| \leq L_\sigma\), \(|f'(\Phi)| \leq L_f\), there exists a unique classical solution \((\Phi, \mathbf{v}, S) \in C([0, T]; H^1(\Sigma))\) to the RSVP equations on \([0, T]\) for some \(T > 0\). If \(\|\nabla \cdot \mathbf{v}\|_\infty\), \(\|\sigma\|_{C^1}\), and \(\|f\|_{C^1}\) are uniformly bounded, the solution extends globally.
+\end{theorem}
+
+\begin{proof}
+The system comprises a hyperbolic equation for \(\Phi\) and a parabolic equation for \(S\), coupled through \(\mathbf{v}\). Define the operator \(\mathcal{L}_S = \partial_t - D \nabla^2 + \mathbf{v} \cdot \nabla\). By parabolic PDE theory \citep{Risken1996}, \(\mathcal{L}_S\) generates a strongly continuous semigroup on \(H^1(\Sigma)\). For \(\Phi\), rewrite the first equation as:
+\[
+\partial_t \Phi = -\nabla \cdot (\Phi \mathbf{v}) + \sigma(S).
+\]
+Treating \(\sigma(S)\) as a source term, the integral equation is:
+\[
+\Phi(t) = e^{-\int_0^t \nabla \cdot \mathbf{v} \, ds} \Phi_0 + \int_0^t e^{-\int_s^t \nabla \cdot \mathbf{v} \, du} \sigma(S(s)) \, ds.
+\]
+Lipschitz continuity of \(\sigma(S)\) and \(f(\Phi)\) ensures a contraction mapping in \(C([0, T]; H^1(\Sigma))\) for small \(T\), by the Picard-Lindelöf theorem. Energy estimates for \(\Phi\):
+\[
+\frac{d}{dt} \|\Phi\|_{H^1}^2 \leq C (\|\Phi\|_{H^1}^2 + \|\sigma(S)\|_{H^1}^2),
+\]
+and similarly for \(S\), with Grönwall’s inequality bounding growth. Global existence follows if \(\|\nabla \cdot \mathbf{v}\|_\infty\) is bounded, preventing blow-up. Normalization \(\int \Phi \, d^3x = 1\) is preserved, as:
+\[
+\frac{d}{dt} \int \Phi \, d^3x = \int \sigma(S) \, d^3x,
+\]
+and \(\sigma(S) = -\kappa S^2 \leq 0\) ensures decay or conservation, consistent with probability.
+\end{proof}
+
+Boundary conditions are Dirichlet for \(S\) (\(S|_{\partial \Sigma} = 0\)) and Neumann for \(\Phi\) (\(\nabla \Phi \cdot \mathbf{n}|_{\partial \Sigma} = 0\)), ensuring physical consistency.
+
+\subsection{Probability and Stochastic Processes}
+
+A stochastic process on a finite configuration space \(X = \{x_i\}_{i=1}^N\) is defined by a probability vector \(\rho \in \mathbb{R}^N\), \(\sum_i \rho_i = 1\), evolving via a transition matrix \(\Gamma_{ij}\). A matrix is doubly stochastic if:
+\[
+\sum_i \Gamma_{ij} = 1, \quad \sum_j \Gamma_{ij} = 1, \quad \Gamma_{ij} \geq 0.
+\]
+It is unistochastic if \(\Gamma_{ij} = |U_{ij}|^2\) for some unitary \(U \in \mathrm{U}(N)\). Non-Markovianity is defined by history-dependent transitions:
+\[
+\Gamma_{ij}(t | h) = \Pr(x_i(t+\Delta t) | x_j(t), h),
+\]
+where \(h\) is the trajectory history, breaking the Chapman–Kolmogorov equation.
+
+\subsection{Notation Table}
+
+\begin{itemize}[noitemsep]
+\item \(\Gamma_{ij}(t)\): Unistochastic transition matrix.
+\item \(\Phi(x,t)\): Entropy density (scalar field).
+\item \(\mathbf{v}(x,t)\): Coherence flow (vector field).
+\item \(S(x,t)\): Entropy potential (scalar field).
+\item \(\omega_0\): 0-shifted symplectic form.
+\item \(S_{\mathrm{BV}}\): Batalin-Vilkovisky action.
+\item \(\mathfrak{C}_1\): Coarse-graining functor.
+\item \(H^1(\Sigma)\): Sobolev space of square-integrable functions with weak derivatives.
+\item \(\mathcal{X} = \mathbf{T}^*[0]X\): Cotangent bundle of configuration space \(X\).
+\end{itemize}
+
+\section{Introduction: The Need for a Coherent Substrate}
+
+Modern theoretical physics faces a dual crisis. Quantum mechanics splits between deterministic unitary evolution (Schrödinger equation) and stochastic measurement outcomes (Born rule), creating the measurement problem. Cosmology struggles to reconcile geometric expansion (general relativity) with thermodynamic decay (second law). Unistochastic dynamics, introduced by Barandes \citep{Barandes2023}, resolves this by describing systems via stochastic processes in classical-like configuration spaces, governed by transition matrices \(\Gamma_{ij}(t) = |U_{ij}(t)|^2\), which replicate quantum phenomena like interference and entanglement without wavefunctions as ontological primitives. The Relativistic Scalar–Vector Plenum (RSVP) extends this to a continuous entropic field, where coarse-graining maps field dynamics to unistochastic matrices:
+\[
+\mathfrak{C}_1: (\Phi, \mathbf{v}, S) \mapsto \Gamma_{ij}.
+\]
+This monograph argues that ISQM and RSVP are dual scales of a single symplectic substrate, with discrete stochastic transitions coarse-graining into a thermodynamic continuum, providing a geometric foundation for quantum probabilities. Compared to Bohmian mechanics’ deterministic non-locality, RSVP’s stochastic framework offers a local, thermodynamically consistent ontology.
+
+\section{Historical Background: From Unitary Dynamics to Stochastic Ontologies}
+
+Quantum mechanics’ interpretational challenges have spurred alternatives. Bohmian mechanics \citep{Bohm1952} posits deterministic trajectories guided by a pilot wave \(\psi\), resolving measurement but introducing non-local influences that violate Bell inequalities non-trivially \citep{Bell1987}. GRW models \citep{Ghirardi1986} add stochastic collapse terms to the Schrödinger equation, breaking unitarity. Everett’s many-worlds \citep{Everett1957} preserves unitarity via branching realities, at the cost of ontological complexity.
+
+Barandes’s ISQM \citep{Barandes2023} embraces stochasticity, using unistochastic matrices \(\Gamma_{ij} = |U_{ij}|^2\) to govern transitions in configuration space. Building on Życzkowski’s work on unistochastic matrices \citep{Zyczkowski1994, Zyczkowski2003}, ISQM avoids non-locality through non-Markovian history dependence, offering a simpler ontology than Bohmian hidden variables or Everettian branching. The stochastic-quantum correspondence allows Hilbert-space methods as emergent tools, with applications beyond quantum physics, such as turbulence and finance \citep{Stratonovich1963}.
+
+\section{Conceptual Bridge: From Indivisibility to Continuity}
+
+ISQM’s indivisible transitions are non-factorizable, non-Markovian laws:
+\[
+\Pr(x_{t+\Delta t} | x_t, x_{t-\tau}) \neq \Pr(x_{t+\Delta t} | x_t),
+\]
+breaking the Chapman–Kolmogorov equation, enabling interference and entanglement without amplitudes. A division event, triggered by interactions, resets the history kernel, mimicking decoherence \citep{Barandes2023}. Indivisibility is defined as a non-factorizable transition kernel on a measure space \((X, \mu)\), where \(\mu(x_i) = \rho_i\), distinguishing it from standard Markov kernels by history dependence. RSVP provides the continuous counterpart, with entropic fields \((\Phi, \mathbf{v}, S)\) whose coarse-graining recovers \(\Gamma_{ij}\), formalizing a stochastic-quantum correspondence where continuity is the limit of discrete probabilistic acts. Prerequisites include finite-state Markov chains and hyperbolic-parabolic PDE theory.
+
+\section{Mathematical Foundations and the Functorial Bridge}
+
+\subsection{Functional Setting and Existence Theorem}
+
+Let \(\Sigma\) be a compact (1+3)-dimensional manifold with boundary \(\partial \Sigma\). The RSVP fields:
+\[
+(\Phi, \mathbf{v}, S): \Sigma \to \mathbb{R} \times T\Sigma \times \mathbb{R}
+\]
+belong to Sobolev spaces \(\Phi, S \in H^1(\Sigma)\), \(\mathbf{v} \in H^1(\Sigma, \mathbb{R}^3)\). Boundary conditions are:
+\[
+S|_{\partial \Sigma} = 0, \quad (\Phi \mathbf{v} - D \nabla \Phi) \cdot \mathbf{n}|_{\partial \Sigma} = 0.
+\]
+The field equations are:
+\begin{align}
+\partial_t \Phi + \nabla \cdot (\Phi \mathbf{v}) &= \sigma(S), \label{eq:PDE1} \\
+\partial_t S &= D \nabla^2 S - \mathbf{v} \cdot \nabla S + f(\Phi), \label{eq:PDE2}
+\end{align}
+with \(\sigma(S) = -\kappa S^2\), \(f(\Phi) = \lambda \Phi\), \(\kappa, \lambda > 0\), satisfying Lipschitz bounds \(|\sigma'(S)| \leq L_\sigma\), \(|f'(\Phi)| \leq L_f\).
+
+\begin{theorem}[Local Existence and Uniqueness]
+\label{thm:wellposed}
+For initial data \((\Phi_0, \mathbf{v}_0, S_0) \in H^1(\Sigma) \times H^1(\Sigma, \mathbb{R}^3) \times H^1(\Sigma)\), with \(\int_\Sigma \Phi_0 \, d^3x = 1\), there exists \(T > 0\) and a unique classical solution \((\Phi, \mathbf{v}, S) \in C([0, T]; H^1(\Sigma))\) to \eqref{eq:PDE1}–\eqref{eq:PDE2}. If \(\|\nabla \cdot \mathbf{v}\|_\infty\), \(\|\sigma\|_{C^1}\), and \(\|f\|_{C^1}\) are bounded uniformly in \(t\), the solution extends globally.
+\end{theorem}
+
+\begin{proof}
+The system is a coupled hyperbolic-parabolic PDE. Equation \eqref{eq:PDE2} is parabolic in \(S\), with operator \(\mathcal{L}_S = \partial_t - D \nabla^2 + \mathbf{v} \cdot \nabla\), generating a \(C^0\) semigroup on \(H^1(\Sigma)\) \citep{Risken1996}. Equation \eqref{eq:PDE1} is hyperbolic-conservative in \(\Phi\). Rewrite:
+\[
+\Phi(t) = e^{-\int_0^t \nabla \cdot \mathbf{v} \, ds} \Phi_0 + \int_0^t e^{-\int_s^t \nabla \cdot \mathbf{v} \, du} \sigma(S(s)) \, ds.
+\]
+Lipschitz continuity of \(\sigma\) and \(f\) yields a contraction mapping in \(C([0, T]; H^1(\Sigma))\) for small \(T\). Energy estimates:
+\[
+\frac{d}{dt} \|\Phi\|_{H^1}^2 = 2 \int \Phi \left( \sigma(S) - \nabla \cdot (\Phi \mathbf{v}) \right) d^3x \leq C (\|\Phi\|_{H^1}^2 + \|\sigma(S)\|_{H^1}^2),
+\]
+and similarly for \(S\). Grönwall’s inequality ensures boundedness. Global extension follows from uniform bounds on \(\|\nabla \cdot \mathbf{v}\|_\infty\). Normalization is preserved:
+\[
+\frac{d}{dt} \int \Phi \, d^3x = \int \sigma(S) \, d^3x = -\kappa \int S^2 \, d^3x \leq 0,
+\]
+adjustable via boundary fluxes to maintain \(\int \Phi = 1\).
+\end{proof}
+
+\subsection{Flux Representation and Discrete Cells}
+
+Partition \(\Sigma\) into disjoint cells \(\{\Omega_i\}_{i=1}^N\). Define the integrated density:
+\[
+\Phi_i = \int_{\Omega_i} \Phi \, d^3x,
+\]
+and flux through shared boundaries:
+\[
+J_{ij} = \int_{\partial \Omega_i \cap \Omega_j} (\Phi \mathbf{v} - D \nabla \Phi) \cdot d\mathbf{A}.
+\]
+By the divergence theorem:
+\[
+\dot{\Phi}_i = \sum_j J_{ij} + \int_{\Omega_i} \sigma(S) \, d^3x.
+\]
+Normalizing by \(\Phi_j\):
+\[
+\Gamma_{ij} = \frac{J_{ij}}{\Phi_j}.
+\]
+In the continuum limit \(\Delta x, \Delta t \to 0\), \(\Gamma_{ij}\) approximates the operator \(\nabla \cdot (D \nabla \Phi - \Phi \mathbf{v})\), yielding the unistochastic kernel.
+
+\subsection{Definition of the Coarse-Graining Functor}
+
+Let \(\mathbf{RSVPField}\) be the category with objects \((\Phi, \mathbf{v}, S)\) satisfying \eqref{eq:PDE1}–\eqref{eq:PDE2}, and morphisms as smooth entropy-preserving diffeomorphisms \(f: \Sigma \to \Sigma\) with \(f^*(\Phi, \mathbf{v}, S) = (\Phi', \mathbf{v}', S')\). Let \(\mathbf{UniStoch}\) be the category with objects as doubly stochastic matrices \(\Gamma = (\Gamma_{ij})\), and morphisms as stochastic intertwiners \(\Lambda\) satisfying \(\Lambda \Gamma = \Gamma' \Lambda\).
+
+\begin{definition}[Coarse-Graining Functor]
+The map:
+\[
+\mathfrak{C}_1: \mathbf{RSVPField} \to \mathbf{UniStoch}, \quad \mathfrak{C}_1(\Phi, \mathbf{v}, S) = \left( \Gamma_{ij} \right)_{i,j} = \left( \frac{1}{\Phi_j} \int_{\partial \Omega_i \cap \Omega_j} (\Phi \mathbf{v} - D \nabla \Phi) \cdot d\mathbf{A} \right)_{i,j}
+\]
+is the coarse-graining functor.
+\end{definition}
+
+\begin{proposition}[Functorial Properties]
+\label{prop:functor}
+\(\mathfrak{C}_1\) preserves identities and composition:
+\[
+\mathfrak{C}_1(\mathrm{id}) = I, \quad \mathfrak{C}_1(F_{t_2} \circ F_{t_1}) = \mathfrak{C}_1(F_{t_2}) \mathfrak{C}_1(F_{t_1}).
+\]
+\end{proposition}
+
+\begin{proof}
+For the identity flow \(F_t = \mathrm{id}\), \(\mathbf{v} = 0\), so \(J_{ij} = 0\) for \(i \neq j\), and \(\Gamma_{ij} = \delta_{ij}\). For sequential flows \(F_{t_2} \circ F_{t_1}\), consider the flux over intermediate cells:
+\[
+J_{ij}(t_1 + t_2) = \int_0^{t_1 + t_2} \int_{\partial \Omega_i \cap \Omega_j} (\Phi \mathbf{v} - D \nabla \Phi) \cdot d\mathbf{A} \, dt.
+\]
+Splitting at \(t_1\), the composition of flows corresponds to matrix multiplication \(\Gamma(t_2) \Gamma(t_1)\), as intermediate boundary integrals cancel by conservation. The adjoint \(\mathfrak{R}_1: \mathbf{UniStoch} \to \mathbf{RSVPField}\) reconstructs fields, with unit \(\eta: \mathrm{Id} \to \mathfrak{R}_1 \circ \mathfrak{C}_1\) as the discretization map and counit \(\epsilon: \mathfrak{C}_1 \circ \mathfrak{R}_1 \to \mathrm{Id}\) as the smoothing limit, satisfying \(d\eta = d\epsilon = dS\).
+\end{proof}
+
+\subsection{Entropy-Preserving Refinement}
+
+The adjoint functor \(\mathfrak{R}_1\) assigns to each \(\Gamma\) a smooth field configuration reproducing the same transition probabilities. The homotopy-adjunction \(\mathfrak{C}_1 \dashv \mathfrak{R}_1\) ensures:
+\[
+\mathrm{Hom}_{\mathbf{RSVPField}}(\mathfrak{R}_1 \Gamma, \Phi) \simeq \mathrm{Hom}_{\mathbf{UniStoch}}(\Gamma, \mathfrak{C}_1 \Phi).
+\]
+Non-uniqueness in \(\mathfrak{R}_1\) reflects gauge freedom in \(\mathbf{v}\), addressed by fixing \(\nabla \cdot \mathbf{v} = 0\).
+
+\section{Explicit Unitary Reconstruction and Numerical Example}
+
+\subsection{From Entropic Flux to Unistochastic Matrices}
+
+Given a discretized RSVP field on \(\{\Omega_i\}\), the transition coefficients are:
+\[
+\Gamma_{ij} = \frac{1}{\Phi_j} \int_{\partial \Omega_i \cap \Omega_j} (\Phi \mathbf{v} - D \nabla \Phi) \cdot d\mathbf{A}.
+\]
+For fine discretizations, \(\Gamma\) is doubly stochastic:
+\[
+\sum_i \Gamma_{ij} = 1, \quad \sum_j \Gamma_{ij} = 1, \quad \Gamma_{ij} \geq 0.
+\]
+
+\subsection{Local Phase Potential}
+
+Let the lamphrodic potential \(\theta(x)\) satisfy \(\mathbf{v} = \nabla \theta\). Define cell-averaged phases:
+\[
+\theta_i = \frac{1}{\mathrm{Vol}(\Omega_i)} \int_{\Omega_i} \theta(x) \, d^3x.
+\]
+The phase difference \(\theta_{ij} = \theta_i - \theta_j\) generates:
+\[
+U_{ij} = \sqrt{\Gamma_{ij}} \, e^{i \theta_{ij} / \hbar}.
+\]
+Unitarity requires:
+\[
+\sum_j U_{ij} U_{kj}^* = \delta_{ik}, \quad \sum_j \sqrt{\Gamma_{ij} \Gamma_{kj}} \, e^{i (\theta_{ij} - \theta_{kj}) / \hbar} = 0 \text{ for } i \neq k.
+\]
+
+\begin{theorem}[Unitary Embedding via Lamphrodic Potential]
+\label{thm:unitaryembedding}
+If \(\Gamma\) is doubly stochastic and \(\theta\) satisfies the orthogonality condition, then \(U_{ij} = \sqrt{\Gamma_{ij}} e^{i \theta_{ij} / \hbar}\) is unitary, and \(\Gamma_{ij} = |U_{ij}|^2\) is unistochastic. Any unistochastic \(\Gamma\) admits such a potential up to gauge transformations \(\theta_i \mapsto \theta_i + 2\pi k_i \hbar\).
+\end{theorem}
+
+\begin{proof}
+Given \(\Gamma_{ij} = |U_{ij}|^2\), unitarity of \(U\) ensures \(\sum_i |U_{ij}|^2 = 1\), matching double-stochasticity. Construct \(U_{ij} = \sqrt{\Gamma_{ij}} e^{i \theta_{ij} / \hbar}\), where \(\theta_{ij} = \theta_i - \theta_j\). The orthogonality condition:
+\[
+\sum_j \sqrt{\Gamma_{ij} \Gamma_{kj}} e^{i (\theta_{ij} - \theta_{kj}) / \hbar} = 0,
+\]
+ensures \(U^\dagger U = I\). Conversely, for any unistochastic \(\Gamma\), set \(\theta_{ij} = \hbar \arg(U_{ij})\), with \(\mathbf{v} = \nabla \theta\). Gauge transformations \(\theta_i \mapsto \theta_i + 2\pi k_i \hbar\) leave \(U\) invariant up to a diagonal phase, preserving \(\Gamma\). Existence follows from Życzkowski’s results \citep{Zyczkowski1994}, as doubly stochastic matrices in the unitary convex hull admit such factorization.
+\end{proof}
+
+\subsection{Example: Two-Cell Entropic Exchange}
+
+For a 1D plenum with two cells \(\Omega_1, \Omega_2\), width \(\Delta x = 1\), set \(\Phi_1 = \Phi_2 = 1\), \(\mathbf{v} = (v, 0, 0)\), \(v = 2\), \(D = 0.1\), \(\Delta t = 0.1\). The flux is:
+\[
+J_{12} = J_{21} = v \Delta t = 0.2, \quad \Gamma = \begin{pmatrix} 0.8 & 0.2 \\ 0.2 & 0.8 \end{pmatrix}.
+\]
+Verify unitarity with:
+\[
+U = \begin{pmatrix} \sqrt{0.8} & \sqrt{0.2} \\ \sqrt{0.2} & -\sqrt{0.8} \end{pmatrix} \approx \begin{pmatrix} 0.894 & 0.447 \\ 0.447 & -0.894 \end{pmatrix}.
+\]
+Check: \(U^\dagger U = I\). Eigenvalues are \(\pm 1\), confirming unitarity.
+
+\subsection{Example: Three-Cell Circular Flow}
+
+For three cells connected cyclically, flux \(J = 0.1\):
+\[
+\Gamma = \begin{pmatrix} 0.8 & 0.1 & 0.1 \\ 0.1 & 0.8 & 0.1 \\ 0.1 & 0.1 & 0.8 \end{pmatrix}.
+\]
+Set \(\theta_{ij} = 2\pi (i - j) / 3\), so:
+\[
+U_{ij} = \sqrt{\Gamma_{ij}} e^{2\pi i (i - j) / 3}.
+\]
+Eigenvalues are \(1, e^{2\pi i / 3}, e^{-2\pi i / 3}\), confirming unistochasticity.
+
+\subsection{Numerical Verification Procedure}
+
+1. Compute \(\Gamma\) from fluxes.
+2. Verify \(\sum_i \Gamma_{ij} = \sum_j \Gamma_{ij} = 1\).
+3. Solve for \(\theta_{ij}\) satisfying orthogonality.
+4. Construct \(U_{ij} = \sqrt{\Gamma_{ij}} e^{i \theta_{ij} / \hbar}\).
+5. Check \(\|U^\dagger U - I\| < \epsilon\).
+
+\subsection{Interpretation}
+
+\(\Gamma\) quantifies entropic exchange, with \(\theta\) encoding coherence. Microscopically, these are ISQM’s indivisible events; macroscopically, they form RSVP’s continuum.
+
+\section{Derived Quantization Example: Boundary Emergence of the Unistochastic Kernel}
+
+\subsection{AKSZ Background}
+
+The AKSZ construction maps a \(d\)-dimensional source supermanifold \(T[1]\Sigma\) and a target \(n\)-shifted symplectic manifold \((\mathcal{X}, \omega_n, \Theta)\) to a BV action:
+\[
+S_{\mathrm{AKSZ}} = \int_{T[1]\Sigma} \left( \langle \Phi^*(\alpha), d\Phi \rangle + \Phi^*(\Theta) \right),
+\]
+where \(\alpha\) is the Liouville 1-form, \(\Theta\) satisfies \(\{\Theta, \Theta\} = 0\). For RSVP, \(\mathcal{X} = \mathbf{T}^*[0]X\), with \(\omega_0 = \delta \Phi \wedge \delta^* (\mathbf{v})\), and:
+\[
+\Theta = \iota_{\mathbf{v}}(\omega_0) + D g^{ab} \partial_a S \partial_b S.
+\]
+
+\subsection{RSVP AKSZ Action}
+
+The action is:
+\[
+S_{\mathrm{AKSZ}} = \int_{T[1]\Sigma} \left( \Phi dS + \mathbf{v} \cdot \nabla S - D g^{ab} \partial_a S \partial_b S \right).
+\]
+Integrating over odd coordinates yields:
+\[
+\mathcal{L}_{\mathrm{RSVP}} = \Phi (\partial_t S + \mathbf{v} \cdot \nabla S) - D |\nabla S|^2.
+\]
+
+\subsection{Path Integral and Boundary Reduction}
+
+Quantization uses:
+\[
+Z = \int [\mathcal{D}\Phi][\mathcal{D}\mathbf{v}][\mathcal{D}S] \exp\left( \frac{i}{\hbar} \int_\Sigma \mathcal{L}_{\mathrm{RSVP}} \right).
+\]
+Fix boundary data \((\Phi, S)|_{\partial \Sigma}\). The boundary current is:
+\[
+J^\mu = \Phi \partial^\mu S - D \partial^\mu (\Phi S), \quad \delta S_{\mathrm{AKSZ}}|_{\partial \Sigma} = \int_{\partial \Sigma} J^\mu \delta S \, dA_\mu.
+\]
+The boundary path integral yields:
+\[
+Z_{\partial \Sigma}[\Phi_{\partial}, S_{\partial}] = \exp\left( \frac{i}{\hbar} \int_{\partial \Sigma} \Phi_{\partial} \Delta S_{\partial} \right).
+\]
+
+\subsection{Discretization and Emergent Transition Kernel}
+
+Partition \(\partial \Sigma\) into cells \(\{\Omega_i\}\). The boundary action is:
+\[
+S_{\partial} = \sum_{i,j} \Phi_i \left( \Delta t \mathbf{v}_{ij} \cdot \nabla S_j - D \Delta t |\nabla S_j|^2 \right).
+\]
+The transition amplitude is:
+\[
+A_{ij} = \exp\left[ \frac{i}{\hbar} \left( \Delta t \mathbf{v}_{ij} \cdot \nabla S_j - D \Delta t |\nabla S_j|^2 \right) \right], \quad U_{ij} = \frac{1}{\sqrt{\mathcal{N}}} A_{ij},
+\]
+with \(\mathcal{N} = \sum_{ij} |A_{ij}|^2\). The kernel is:
+\[
+\Gamma_{ij} = |U_{ij}|^2 = \frac{1}{\mathcal{N}} \exp\left[ -\frac{2 D \Delta t}{\hbar} |\nabla S_j|^2 \right].
+\]
+
+\subsection{Semiclassical Expansion}
+
+Expanding around \(S_0\):
+\[
+S = S_0 + \hbar^{1/2} \delta S + O(\hbar),
+\]
+the one-loop correction is:
+\[
+\Gamma_{ij}^{(1)} = \Gamma_{ij}^{(0)} \left[ 1 - \frac{\hbar D \Delta t}{2} (\nabla^2 S_0)^2 + O(\hbar^2) \right].
+\]
+
+\subsection{Interpretation}
+
+The unistochastic kernel emerges as the boundary manifestation of RSVP’s quantization, with quantum stochasticity as discrete sampling of entropic geometry.
+
+\section{Entropy–Curvature Coupling and the Born Rule as a Limit Theorem}
+
+\subsection{Entropy–Curvature Interaction}
+
+On a curved \(\Sigma\) with scalar curvature \(R\), the Lagrangian includes:
+\[
+\mathcal{L}_{\text{curv}} = \alpha_1 R S^2 + \alpha_2 R_{\mu\nu} \nabla^\mu S \nabla^\nu S + \alpha_3 R |\nabla S|^2.
+\]
+The total Lagrangian is:
+\[
+\mathcal{L}_{\text{tot}} = \Phi (\partial_t S + \mathbf{v} \cdot \nabla S) - D |\nabla S|^2 + \mathcal{L}_{\text{curv}}.
+\]
+
+\subsection{Curvature Correction to the Transition Kernel}
+
+The curvature-corrected kernel is:
+\[
+\Gamma_{ij}^{(\mathrm{curv})} = |U_{ij}|^2 \exp\left[ -\frac{2 D \Delta t}{\hbar} |\nabla S_j|^2 - \hbar \left( \alpha_1 R S_j^2 + \alpha_3 R |\nabla S_j|^2 \right) \right].
+\]
+
+\subsection{Long-Time Limit and Ergodic Averaging}
+
+The probability evolves:
+\[
+\rho_i(t + \Delta t) = \sum_j \Gamma_{ij}^{(\mathrm{curv})} \rho_j(t).
+\]
+For large \(N\):
+\[
+\rho_i(t + N \Delta t) = (\Gamma^{(\mathrm{curv})})^N_{ij} \rho_j(t_0).
+\]
+By the Perron–Frobenius theorem, \(\rho_i \to \rho_i^{(\mathrm{eq})}\), satisfying:
+\[
+\rho_i^{(\mathrm{eq})} = \sum_j |U_{ij}|^2 \rho_j^{(\mathrm{eq})}.
+\]
+
+\begin{theorem}[Born Rule as Entropic Limit]
+\label{thm:bornlimit}
+For an ergodic \(\Gamma^{(\mathrm{curv})}\), empirical frequencies \(f_i^{(N)} = \frac{1}{N} \sum_{k=1}^N \chi_i(t_k)\) converge almost surely to \(\rho_i^{(\mathrm{eq})} = \sum_j |U_{ij}|^2 \rho_j^{(\mathrm{eq})}\).
+\end{theorem}
+
+\begin{proof}
+Since \(\Gamma^{(\mathrm{curv})}\) is stochastic and ergodic, the Markov chain satisfies Birkhoff’s ergodic theorem:
+\[
+\lim_{N \to \infty} \frac{1}{N} \sum_{k=1}^N \Gamma^k = \Pi,
+\]
+where \(\Pi\) projects onto the stationary subspace. As \(\Gamma_{ij} = |U_{ij}|^2\), the stationary distribution obeys the Born rule. Convergence follows from the strong law of large numbers for Markov chains \citep{Risken1996}.
+\end{proof}
+
+\subsection{Interpretation}
+
+The Born rule is a statistical attractor of RSVP dynamics, with curvature accelerating equilibration.
+
+\section{Cosmological Extension: The Unistochastic Horizon and Expyrotic Reset}
+
+\subsection{From Local Indivisibility to Cosmic Smoothing}
+
+Microscopic indivisible transitions (\(\Gamma_{ij}\)) aggregate into RSVP’s entropic flow. The cosmic horizon is \(\partial \Sigma\), where local transitions become global thermodynamic gradients.
+
+\subsection{Entropy Production and Horizon Geometry}
+
+Total entropy is:
+\[
+S_{\text{tot}}(t) = \int_\Sigma \Phi S \, d^3x, \quad \frac{d S_{\text{tot}}}{dt} = \int_\Sigma \sigma(S) \, d^3x = -\kappa \int S^2 \, d^3x \leq 0.
+\]
+The entropic Hubble parameter is:
+\[
+H_{\mathrm{RSVP}} = \frac{1}{3} \nabla \cdot \mathbf{v}.
+\]
+
+\subsection{The Unistochastic Horizon}
+
+The horizon kernel is:
+\[
+\Gamma_{ij}^{(\mathrm{cos})} = |U_{ij}|^2 \exp\left[ -\frac{\Lambda_{\mathrm{ent}} d_{ij}^2}{\hbar c} \right].
+\]
+
+\subsection{Entropy–Curvature Feedback and the Expyrotic Limit}
+
+Curvature reduces as:
+\[
+\nabla S \to 0, \quad R \to 0, \quad H_{\mathrm{RSVP}} \to 0,
+\]
+approaching Expyrosis.
+
+\subsection{Quantum Seeds and the Reset Mechanism}
+
+At Expyrosis, \(\Gamma_{ij} \to \frac{1}{N}\). Fluctuations \(\epsilon_{ij}\) grow as:
+\[
+\epsilon_{ij}(t) \sim e^{\lambda t}, \quad \lambda = 2 \kappa S.
+\]
+
+\subsection{Cosmological Born Rule}
+
+Macrostate probabilities follow:
+\[
+P(\mathcal{O}_i) = \lim_{T \to \infty} \frac{1}{T} \int_0^T |U_{ij}(t)|^2 \, dt.
+\]
+
+\subsection{Interpretation}
+
+The universe equilibrates through entropic cycles, with stochastic resets seeding new structure.
+
+\subsection{Summary}
+
+- The horizon is the boundary of coherence.
+- Curvature drives Expyrosis.
+- Fluctuations trigger new cycles.
+- The Born rule extends to cosmological scales.
+
+\section{Unified View: Indivisibility Across Scales}
+
+\subsection{Indivisibility as a Universal Principle}
+
+Indivisibility resists arbitrary partition. Microscopically, it is the unistochastic kernel; mesoscopically, RSVP’s smooth fields; cosmologically, the coherent plenum.
+
+\subsection{Scale Hierarchy of the Plenum}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Scale} & \textbf{Dominant Structure} & \textbf{Conservation Law} \\
+\midrule
+Quantum & Unistochastic kernel \(|U_{ij}|^2\) & Unitarity (phase coherence) \\
+Mesoscopic & RSVP field \((\Phi, \mathbf{v}, S)\) & Entropy continuity \\
+Macroscopic & Entropy curvature \(R, S\) & Thermodynamic balance \\
+Cosmic & Horizon kernel \(\Gamma_{ij}^{(\mathrm{cos})}\) & Global entropy conservation \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{The RSVP–UQM Correspondence Principle}
+
+The functor \(\mathfrak{C}_1: \mathbf{RSVPField} \to \mathbf{UniStoch}\) and adjoint \(\mathfrak{R}_1\) define:
+\[
+\mathfrak{C}_1(\Phi, \mathbf{v}, S) = |U|^2, \quad \mathfrak{R}_1(|U|^2) = (\Phi, \mathbf{v}, S).
+\]
+
+\subsection{From Quantization to Smoothing}
+
+The deformation parameters are:
+\[
+\hbar \text{ (quantum)}, \quad D \text{ (smoothing)}, \quad \Lambda_{\mathrm{RSVP}} = \frac{D}{\hbar}.
+\]
+
+\subsection{Expyrotic Cycles as Indivisible Renewal}
+
+Expyrotic resets re-quantize the universe via stochastic fluctuations.
+
+\subsection{Philosophical Implications}
+
+1. Reality as recursive coherence.
+2. Measurement as entropic coupling.
+3. Time as smoothing gradient.
+4. Cosmos as indivisible field.
+
+\subsection{Outlook}
+
+- Derived Markov stacks.
+- Numerical RSVP simulations.
+- Cosmological data fitting.
+
+\subsection{Closing Reflection}
+
+The universe equilibrates, not expands. The wave smooths, not collapses. Reality reconstitutes, not divides.
+
+\begin{center}
+\emph{The universe does not expand; it equilibrates. The wave does not collapse; it smooths. Reality does not divide; it reconstitutes.}
+\end{center}
+
+\appendix
+\section{Derived–Geometric Form of the RSVP Field}
+\label{app:derived}
+
+\subsection{The Graded Manifold}
+
+Let \(\Sigma\) be the (1+3)-dimensional worldvolume, and \(T[1]\Sigma\) its parity-shifted tangent bundle with coordinates \((x^\mu, \theta^\mu)\), degrees \((0,1)\). The RSVP fields define \(\Phi: T[1]\Sigma \to \mathcal{X}\), where \(\mathcal{X} = \mathbf{T}^*[0]X \simeq \operatorname{Spec} \mathrm{Sym}(\mathbb{T}_X[0])\), with:
+\[
+\omega_0 = \int_\Sigma \delta \Phi \wedge \delta^* (\mathbf{v}).
+\]
+
+\subsection{The AKSZ Action}
+
+\[
+S_{\mathrm{AKSZ}} = \int_{T[1]\Sigma} \left( \Phi dS + \mathbf{v} \cdot \nabla S - D g^{ab} \partial_a S \partial_b S \right).
+\]
+The Hamiltonian \(\Theta = \iota_{\mathbf{v}}(\omega_0) + D g^{ab} \partial_a S \partial_b S\) satisfies \(\{\Theta, \Theta\} = 0\).
+
+\begin{proof}
+The Poisson bracket is:
+\[
+\{\Theta, \Theta\} = 2 \iota_{\mathbf{v}} d\Theta = 2 \iota_{\mathbf{v}} d (\iota_{\mathbf{v}} \omega_0 + D g^{ab} \partial_a S \partial_b S).
+\]
+Since \(\mathcal{L}_{\mathbf{v}} \omega_0 = dS\), and \(d (g^{ab} \partial_a S \partial_b S) = 0\) for a closed form, the bracket vanishes \citep{Alexandrov1997}.
+\end{proof}
+
+\subsection{BV Extension and Master Equation}
+
+With antifields \(\Phi^*, \mathbf{v}^*, S^*\) (degree \(-1\)) and ghosts \(c^\mu, \eta\) (degree \(+1\)):
+\[
+S_{\mathrm{BV}} = S_{\mathrm{AKSZ}} + \int_\Sigma \left[ \Phi^* (c^\mu \partial_\mu \Phi) + S^* (c^\mu \partial_\mu S + \eta) + v_i^* (c^\mu \partial_\mu v^i - v^j \partial_j c^i) + \frac{1}{2} c_\mu^* c^\nu \partial_\nu c^\mu + \eta^* (c^\mu \partial_\mu \eta) \right].
+\]
+The master equation \((S_{\mathrm{BV}}, S_{\mathrm{BV}}) = 0\) holds.
+
+\begin{proof}
+The antibracket is:
+\[
+(F, G) = \int \frac{\delta F}{\delta \Psi^A} \frac{\delta G}{\delta \Psi_A^*} - \frac{\delta F}{\delta \Psi_A^*} \frac{\delta G}{\delta \Psi^A} \, d^4x.
+\]
+Compute \((S_{\mathrm{BV}}, S_{\mathrm{BV}})\):
+- AKSZ terms: \(\{\Theta, \Theta\} = 0\).
+- Ghost terms: Diffeomorphism and gauge algebras close.
+- Antifield terms: Cancel via integration by parts, as \(\partial_\mu (c^\mu \partial_\nu c^\nu) = 0\). Ghost number conservation ensures all terms balance \citep{Alexandrov1997}.
+\end{proof}
+
+\subsection{Derived Quantization and Boundary Data}
+
+Quantization maps to \(\operatorname{Crit}(S_{\mathrm{BV}})\). Boundary restriction yields:
+\[
+Z_{\partial \Sigma}[\Gamma] = \int_{\Phi|_{\partial \Sigma} = \Gamma} e^{\frac{i}{\hbar} S_{\mathrm{AKSZ}}}.
+\]
+
+\subsection{Interpretation}
+
+The AKSZ–BV framework unifies unitarity and entropy production.
+
+\section{BV–BRST Structure of the RSVP–AKSZ Sigma Model}
+\label{app:bv-brst}
+
+\subsection{Field Content and Degrees}
+
+\[
+\begin{array}{rclcl}
+\Phi &:& \Sigma[0] &\to& \text{Scalar entropy density} \\
+\mathbf{v}_i &:& \Sigma[0] &\to& \text{Vector flow field} \\
+S &:& \Sigma[0] &\to& \text{Entropy potential} \\
+c^\mu &:& \Sigma[1] &\to& \text{Diffeomorphism ghost} \\
+\eta &:& \Sigma[1] &\to& \text{Entropy–gauge ghost}
+\end{array}
+\]
+Ghost numbers: \(\operatorname{gh}(c^\mu) = 1\), \(\operatorname{gh}(\eta) = 1\), \(\Phi, \mathbf{v}, S\) at 0. Antifields \(\Psi_A^*\) have degree \(-1 - \operatorname{gh}(\Psi^A)\).
+
+\subsection{Classical Action in BV Form}
+
+\[
+S_{\mathrm{BV}} = \int_\Sigma \left[ \Phi (\partial_t S + \mathbf{v} \cdot \nabla S) - D |\nabla S|^2 + \Phi^* (c^\mu \partial_\mu \Phi) + S^* (c^\mu \partial_\mu S + \eta) + v_i^* (c^\mu \partial_\mu v^i - v^j \partial_j c^i) + \frac{1}{2} c_\mu^* c^\nu \partial_\nu c^\mu + \eta^* (c^\mu \partial_\mu \eta) \right].
+\]
+
+\subsection{BRST Transformations}
+
+\[
+s \Phi = c^\mu \partial_\mu \Phi, \quad s S = c^\mu \partial_\mu S + \eta, \quad s v^i = c^\mu \partial_\mu v^i - v^j \partial_j c^i, \quad s c^\mu = c^\nu \partial_\nu c^\mu, \quad s \eta = c^\mu \partial_\mu \eta.
+\]
+These satisfy \(s^2 = 0\) up to equations of motion.
+
+\subsection{Classical Master Equation}
+
+\[
+(S_{\mathrm{BV}}, S_{\mathrm{BV}}) = 0.
+\]
+
+\subsection{Observables and Cohomology}
+
+Observables like \(\mathcal{O}_f = \int_\Sigma f(\Phi, S) d^3x\) lie in BV cohomology.
+
+\subsection{Interpretation}
+
+Ghosts encode symmetries, antifields enforce conservation.
+
+\section{Derived Quantization and Emergent Probability Law}
+\label{app:quantization}
+
+\subsection{BV Path Integral and Gauge Fixing}
+
+\[
+Z = \int [\mathcal{D}\Psi][\mathcal{D}\Psi^*] \exp\left( \frac{i}{\hbar} S_{\mathrm{BV}} \right).
+\]
+Gauge fixing imposes \(G^\mu = \partial_\nu v^\nu\), \(G_\eta = \partial_t S\).
+
+\subsection{Integration over Ghosts and Antifields}
+
+\[
+Z = \int [\mathcal{D}\Phi][\mathcal{D}\mathbf{v}][\mathcal{D}S] \exp\left( \frac{i}{\hbar} \int_\Sigma \mathcal{L}_{\mathrm{RSVP}} \right) \times \det(\Delta_{\mathrm{FP}}).
+\]
+
+\subsection{Emergent Unistochastic Kernel}
+
+\[
+Z \simeq \sum_{\{\Phi_i(t)\}} \exp\left[ \frac{i}{\hbar} \sum_{t,i,j} \Phi_i(t) \Gamma_{ij} S_j(t + \Delta t) \right],
+\]
+with \(\Gamma_{ij} = \frac{1}{\mathcal{N}} \left| \exp\left( i \Delta t \mathbf{v} \cdot \nabla S - D \Delta t |\nabla S|^2 \right) \right|^2\).
+
+\subsection{Born Rule as a Limit Theorem}
+
+\[
+\lim_{N \to \infty} \frac{N_i(t)}{N} = \sum_j \Gamma_{ij} \rho_j(t) = |U_{ij}|^2 \rho_j(t).
+\]
+
+\subsection{Derived Stack Quantization}
+
+The critical locus \(\operatorname{Crit}(S_{\mathrm{BV}})\) defines a \((-1)\)-shifted symplectic stack.
+
+\subsection{Interpretation}
+
+The BV quantization bridges micro-unitarity and macro-entropy.
+
+\section{Semiclassical Expansion and Entropy–Curvature Anomalies}
+\label{app:semiclassical}
+
+\subsection{Semiclassical Expansion}
+
+Expanding around \(\Psi_0\):
+\[
+\Gamma^{(1)} = S_{\mathrm{RSVP}}[\Psi_0] + \frac{i \hbar}{2} \ln \det \mathcal{K}_{AB} + O(\hbar^2).
+\]
+The fluctuation operator is:
+\[
+\mathcal{K}_{AB} = \frac{\delta^2 S_{\mathrm{RSVP}}}{\delta \Psi^A \delta \Psi^B}.
+\]
+
+\begin{proof}
+Compute \(\mathcal{K}\):
+\[
+\mathcal{K}_{\Phi S} = \partial_t S + \mathbf{v} \cdot \nabla S, \quad \mathcal{K}_{S S} = -D \nabla^2 \Phi.
+\]
+The determinant is regularized via \(\zeta\)-function, yielding curvature terms \citep{Pantev2013}.
+\end{proof}
+
+\subsection{Curvature Coupling and Entropic Torsion}
+
+\[
+\Gamma_{\mathrm{anom}} = \frac{\hbar}{24 \pi^2} \int_\Sigma \left( \alpha_1 R \Phi_0 + \alpha_2 T_{\mu\nu}^{\rho} \mathbf{v}_0^\mu \nabla_\rho S_0 + \alpha_3 |\nabla S_0|^2 R \right) d^4x.
+\]
+
+\subsection{Effective Unistochastic Kernel}
+
+\[
+\Gamma_{ij}^{(\mathrm{eff})} = |U_{ij}|^2 \exp\left[ -\hbar \mathcal{A}_{ij}(\Phi_0, S_0, R, T) \right].
+\]
+
+\subsection{Shifted Symplectic Anomaly Form}
+
+\[
+d \omega_0 = \hbar \Omega^{(1)}, \quad \Omega^{(1)} = \operatorname{Tr} \left( \mathcal{R} \wedge \mathcal{R} + \mathcal{T} \wedge \mathcal{T} \right).
+\]
+
+\subsection{Physical Interpretation}
+
+Anomalies introduce entropy leakage.
+
+\subsection{Summary}
+
+The expansion unifies classical entropy with quantum corrections.
+
+\section{Renormalization–Group Flow of Entropy and Curvature}
+\label{app:rg}
+
+\subsection{Scale Dependence}
+
+\[
+\mu \frac{d \Gamma}{d \mu} = \left( \beta_D \frac{\partial}{\partial D} + \beta_{\alpha_i} \frac{\partial}{\partial \alpha_i} - \gamma_\Phi \int \Phi \frac{\delta}{\delta \Phi} - \gamma_S \int S \frac{\delta}{\delta S} \right) \Gamma.
+\]
+
+\subsection{One–Loop Beta Functions}
+
+\[
+\beta_D = \frac{\hbar}{6 \pi^2} D^2 \left(1 - \frac{5}{12} \epsilon \right) - \alpha_3 R D, \quad \beta_{\alpha_1} = \frac{\hbar}{24 \pi^2} (1 - 6D), \quad \beta_{\alpha_2} = \frac{\hbar}{8 \pi^2} D, \quad \beta_{\alpha_3} = \frac{\hbar}{12 \pi^2} (1 - 3D).
+\]
+
+\begin{proof}
+Using dimensional regularization (\(d = 4 - \epsilon\)), compute one-loop diagrams for \(\Phi, S\) propagators. The \(\beta_D\) term arises from the vertex \(\Phi \mathbf{v} \cdot \nabla S\), with logarithmic divergences proportional to \(D^2\). Curvature terms couple via \(\alpha_3 R\), stabilizing the flow \citep{Wilson1983}.
+\end{proof}
+
+\subsection{Fixed Points}
+
+- **Microscopic**: \(D \to 0\), unitary.
+- **Mesoscopic**: \(D_* = 6 \pi^2 \hbar^{-1} \alpha_3 R\), RSVP.
+- **Macroscopic**: \(D\) grows, Expyrotic.
+
+\begin{proof}
+Solve \(\beta_D = 0\):
+\[
+\frac{\hbar}{6 \pi^2} D^2 \left(1 - \frac{5}{12} \epsilon \right) - \alpha_3 R D = 0.
+\]
+Stable fixed point at \(D_* = 6 \pi^2 \hbar^{-1} \alpha_3 R\). Jacobian \(\partial \beta_D / \partial D\) has negative eigenvalues at \(D_*\) \citep{Wilson1983}.
+\end{proof}
+
+\subsection{Flow of Entropy–Curvature Coupling}
+
+\[
+\mu \frac{d \Lambda_{\mathrm{ent}}}{d \mu} = (\beta_{\alpha_1} R + \beta_{\alpha_3} |\nabla S|^2) + (\alpha_1 + \alpha_3) \beta_R.
+\]
+
+\subsection{Geometric Interpretation}
+
+The RG flow traces a homotopy on \(\omega_0\).
+
+\subsection{Physical Picture}
+
+\(D\) and \(\alpha_i\) drive the plenum from unitarity to smoothness.
+
+\subsection{Summary}
+
+The RG flow unifies scales, with fixed points marking universality classes.
+
+\section{Phase–Space Portrait and Entropic Gradient Flow}
+\label{app:phase-space}
+
+\subsection{Entropic Potential}
+
+\[
+\mathcal{S}[\Phi, S] = \int_\Sigma \left( \Phi S - \frac{1}{2} D |\nabla S|^2 + \frac{1}{2} \alpha_1 R S^2 + \frac{1}{2} \alpha_3 R |\nabla S|^2 \right) d^4x.
+\]
+
+\subsection{Phase–Space Variables}
+
+Coordinates \((q^1, q^2, q^3) = (\Phi, S, D)\), momenta \((p_1, p_2, p_3) = (\nabla \cdot \mathbf{v}, \partial_t S, \partial_t D)\), with \(\Omega = \sum_i dq^i \wedge dp_i\).
+
+\subsection{Entropic Phase Portrait}
+
+\[
+\frac{d}{d\tau} \begin{pmatrix} \delta D \\ \delta \alpha_i \end{pmatrix} = J \begin{pmatrix} \delta D \\ \delta \alpha_i \end{pmatrix}.
+\]
+Fixed points: UV-attractive (unistochastic), marginal (RSVP), IR-attractive (Expyrotic).
+
+\subsection{Derived Gradient Flow}
+
+\[
+\iota_{Q_{\mathrm{RG}}} \omega_{\mathrm{RG}} = d \mathcal{S}.
+\]
+
+\subsection{Cosmological and Informational Outlook}
+
+The flow defines a thermodynamic arrow, with \(D\) as the learning rate.
+
+\subsection{Summary}
+
+The portrait unifies regimes via entropic gradient descent.
+
+\section{Categorical Synthesis of the RSVP–UQM Hierarchy}
+\label{app:categorical}
+
+\subsection{Overview}
+
+\[
+\begin{tikzcd}
+\mathbf{UniStoch} \arrow[r, shift left=.7ex, "\mathfrak{C}_1"] & \mathbf{RSVPField} \arrow[r, shift left=.7ex, "\mathfrak{C}_2"] \arrow[l, shift left=.7ex, "\mathfrak{R}_1"] & \mathbf{BVQuant} \arrow[r, shift left=.7ex, "\mathfrak{C}_3"] \arrow[l, shift left=.7ex, "\mathfrak{R}_2"] & \mathbf{RGFlow} \arrow[l, shift left=.7ex, "\mathfrak{R}_3"]
+\end{tikzcd}
+\]
+
+\subsection{Layered Structure}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Level} & \textbf{Mathematical Object} & \textbf{Structure Preserved} & \textbf{Physical Interpretation} \\
+\midrule
+\textbf{I. Unistochastic} & \(\Gamma_{ij} = |U_{ij}|^2\) & Doubly-stochastic & Stochastic microdynamics \\
+\textbf{II. RSVP Field} & \((\Phi, \mathbf{v}, S)\) & \(\nabla \cdot \mathbf{v} = 0\) & Entropic continuum \\
+\textbf{III. BV–AKSZ} & \(T^*[-1] \mathcal{F}_{\mathrm{RSVP}}\) & 0-shifted symplectic & Quantized entropy \\
+\textbf{IV. RG Flow} & \((\mathcal{S}, Q_{\mathrm{RG}})\) & Gradient descent & Scale-dependent smoothing \\
+\textbf{V. Global Stack} & \(\mathcal{M}_{\mathrm{RSVP}}\) & Symplectic homotopy & Unified entropy–geometry \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Derived–Stack Composition}
+
+\[
+\mathfrak{Q}_{\mathrm{RSVP}} = \mathfrak{C}_3 \circ \mathfrak{C}_2 \circ \mathfrak{C}_1.
+\]
+
+\subsection{Homotopy–Commutative Cube}
+
+\[
+\begin{tikzcd}
+ &[-2em] \mathcal{F}_{\mathrm{RSVP}} \arrow[dr,"\text{Quantize}"] \arrow[dl,"\text{Coarse-grain}"] & \\
+\mathcal{U}_{\mathrm{unistoch}} \arrow[rr,"\text{Derived BV}"] & & \mathcal{Q}_{\mathrm{BV/AKSZ}} \arrow[dl,"\text{RG flow}"] \\
+ & \mathcal{R}_{\mathrm{RG}} \arrow[ul,"\text{Refine}"] &
+\end{tikzcd}
+\]
+
+\subsection{Monoidal and Probabilistic Structure}
+
+Monoidal products compose subsystems; \(\mathbb{P}: \mathbf{UniStoch} \to \mathbf{Set}\) is lax monoidal.
+
+\subsection{Summary}
+
+The hierarchy forms a derived adjoint tower.
+
+\section{Categorical Formulation of the RSVP–UQM Tower}
+\label{app:categorical-tower}
+
+\subsection{Categories and Objects}
+
+- \(\mathbf{UniStoch}\): Kernels \(\Gamma_{ij}\), stochastic intertwiners.
+- \(\mathbf{RSVPField}\): \((\Phi, \mathbf{v}, S)\), entropy-preserving diffeomorphisms.
+- \(\mathbf{BVQuant}\): \((\mathcal{F}, \omega_0, \Theta)\), symplectic quasi-isomorphisms.
+- \(\mathbf{RGFlow}\): \((\mathcal{S}, Q_{\mathrm{RG}})\), scale-preserving homotopies.
+
+\subsection{Functorial Relationships}
+
+\(\mathfrak{C}_i\) coarse-grain, \(\mathfrak{R}_i\) refine, forming homotopy-adjunctions.
+
+\subsection{Natural Transformations}
+
+\(\eta_i, \epsilon_i\) satisfy \(d \eta_i = d \epsilon_i = dS\).
+
+\subsection{Global Derived Stack}
+
+\[
+\mathcal{M}_{\mathrm{RSVP}} = \operatorname{hocolim} \mathcal{D}.
+\]
+
+\subsection{Monoidal and Probabilistic Structure}
+
+Monoidal products ensure consistency.
+
+\subsection{Final Summary}
+
+The RSVP–UQM theory unifies stochasticity and geometry.
+
+\section{Entropy as the Geometry of Indivisibility}
+
+\subsection{Thermodynamic Completion of Quantum Mechanics}
+
+RSVP embeds quantum amplitudes in a geometric medium, resolving measurement issues locally, unlike Bohmian non-locality.
+
+\subsection{Relation to Statistical and Information Theories}
+
+Links to Jaynes’s maximum entropy \citep{Jaynes1957} and information geometry.
+
+\subsection{Comparison with Other Interpretations}
+
+\begin{center}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Feature} & \textbf{ISQM} & \textbf{RSVP} & \textbf{Bohm} & \textbf{GRW} \\
+\midrule
+Ontology & Stochastic & Entropic field & Deterministic & Stochastic collapse \\
+Non-locality & No & No & Yes & No \\
+Measurement & Intrinsic jumps & Entropic smoothing & Pilot wave & Collapse terms \\
+Born Rule & Emergent & Ergodic limit & Derived & Postulated \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Numerical Methods for RSVP Simulation}
+
+Discretize \(\Sigma\), solve \eqref{eq:PDE1}–\eqref{eq:PDE2} using finite difference methods, compute \(\Gamma_{ij}\).
+
+\subsection{Observable Predictions}
+
+RSVP predicts curvature-dependent decoherence rates, testable in quantum optics.
+
+\section*{Bibliographic Note}
+\addcontentsline{toc}{section}{Bibliographic Note}
+
+\begin{thebibliography}{9}
+\bibitem{Barandes2023} J.~A.~Barandes, \emph{The Stochastic-Quantum Correspondence}, arXiv:2302.10774 [quant-ph] (2023).
+\bibitem{Bell1987} J.~S.~Bell, \emph{Speakable and Unspeakable in Quantum Mechanics}, Cambridge University Press (1987).
+\bibitem{Bohm1952} D.~Bohm, \emph{A Suggested Interpretation of the Quantum Theory in Terms of “Hidden” Variables}, \emph{Phys. Rev.} \textbf{85}, 166–193 (1952).
+\bibitem{Zyczkowski1994} A.~Życzkowski and M.~Kuś, \emph{Random Unistochastic Matrices}, \emph{J. Phys. A} \textbf{27}, 4235–4245 (1994).
+\bibitem{Zyczkowski2003} M.~Życzkowski et al., \emph{On the Unistochasticity of Quantum Channels}, \emph{Open Sys. \& Inf. Dyn.} \textbf{10}, 297–310 (2003).
+\bibitem{Pantev2013} P.~Pantev, B.~Toën, M.~Vaquié, G.~Vezzosi, \emph{Shifted Symplectic Structures}, \emph{Publ. Math. IHÉS} \textbf{117}, 271–328 (2013).
+\bibitem{Alexandrov1997} M.~Alexandrov, M.~Kontsevich, A.~Schwarz, O.~Zaboronsky, \emph{The Geometry of the Master Equation}, \emph{Int. J. Mod. Phys. A} \textbf{12}, 1405–1430 (1997).
+\bibitem{Ikeda1994} N.~Ikeda, \emph{Chern–Simons Gauge Theory Coupled with BF Theory}, \emph{Ann. Phys.} \textbf{235}, 435–464 (1994).
+\bibitem{Risken1996} H.~Risken, \emph{The Fokker–Planck Equation}, Springer (1996).
+\bibitem{Seifert2012} U.~Seifert, \emph{Stochastic Thermodynamics, Fluctuation Theorems, and Molecular Machines}, \emph{Rep. Prog. Phys.} \textbf{75}, 126001 (2012).
+\bibitem{Stratonovich1963} R.~L.~Stratonovich, \emph{Topics in the Theory of Random Noise}, Gordon \& Breach (1963).
+\bibitem{Wilson1983} K.~G.~Wilson, \emph{The Renormalization Group and Critical Phenomena}, \emph{Rev. Mod. Phys.} \textbf{55}, 583–600 (1983).
+\bibitem{Ghirardi1986} G.~C.~Ghirardi, A.~Rimini, T.~Weber, \emph{Unified Dynamics for Microscopic and Macroscopic Systems}, \emph{Phys. Rev. D} \textbf{34}, 470–491 (1986).
+\bibitem{Everett1957} H.~Everett, \emph{“Relative State” Formulation of Quantum Mechanics}, \emph{Rev. Mod. Phys.} \textbf{29}, 454–462 (1957).
+\bibitem{Grunwald2007} P.~D.~Grünwald, \emph{The Minimum Description Length Principle}, MIT Press (2007).
+\bibitem{Friston2010} K.~Friston, \emph{The Free-Energy Principle: A Unified Brain Theory?}, \emph{Nat. Rev. Neurosci.} \textbf{11}, 127–138 (2010).
+\bibitem{Jaynes1957} E.~T.~Jaynes, \emph{Information Theory and Statistical Mechanics}, \emph{Phys. Rev.} \textbf{106}, 620–630 (1957).
+\end{thebibliography}
+
+\section*{Acknowledgments}
+\addcontentsline{toc}{section}{Acknowledgments}
+
+The author gratefully acknowledges Jacob Barandes for the stochastic-quantum correspondence, Pavel Pantev, Bertrand Toën, Michel Vaquié, and Gabriele Vezzosi for derived geometry, and the mathematical physics community for advancing coherence studies.
+
+\end{document}

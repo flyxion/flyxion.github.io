@@ -117,6 +117,7 @@ button:hover, select:hover { background: var(--accent-color); color: black; }
 #gameTitle { font-weight: bold; letter-spacing: .5px; }
 </style>
 </head>
+
 <body>
 
 <canvas id="starfield"></canvas>
@@ -804,6 +805,75 @@ function overlayMessage(text){
    ========================= */
 inputN.value = '1';
 translateNumber();
+</script>
+
+<!-- ===== OPEN SOURCE DOT ===== -->
+<style>
+#openSourceDot {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  width: 14px;
+  height: 14px;
+  background: red;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255,0,0,0.8);
+  animation: pulse 1.2s infinite;
+  cursor: pointer;
+  z-index: 10;
+}
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+#openSourcePopup {
+  position: fixed;
+  bottom: 40px;
+  right: 20px;
+  background: rgba(0,0,0,0.85);
+  color: white;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  border: 1px solid red;
+  border-radius: 6px;
+  padding: 8px 10px;
+  z-index: 11;
+  display: none;
+  white-space: nowrap;
+}
+#openSourcePopup a {
+  color: #ff8080;
+  text-decoration: underline;
+}
+#openSourcePopup a:hover {
+  color: #fff;
+}
+</style>
+
+<div id="openSourceDot" title="Open source info"></div>
+<div id="openSourcePopup">
+  This page is open source, improve it here:<br/>
+  <a href="https://github.com/flyxion/flyxion.github.io/edit/main/index.html" target="_blank">
+    github.com/flyxion/flyxion.github.io
+  </a>
+</div>
+
+<script>
+const dot = document.getElementById('openSourceDot');
+const popup = document.getElementById('openSourcePopup');
+let popupVisible = false;
+dot.addEventListener('click', () => {
+  popupVisible = !popupVisible;
+  popup.style.display = popupVisible ? 'block' : 'none';
+});
+document.addEventListener('click', (e) => {
+  if (!dot.contains(e.target) && !popup.contains(e.target)) {
+    popup.style.display = 'none';
+    popupVisible = false;
+  }
+});
 </script>
 </body>
 </html>
