@@ -142,6 +142,12 @@ button:hover, select:hover { background: var(--accent-color); color: black; }
       </select>
     </label>
     <button id="launchGame">Launch (seeded)</button>
+
+    <!-- Auto-hide toggle: checked by default so the translator is hidden on launch -->
+    <label style="margin-left:12px; font-size:13px;">
+      <input type="checkbox" id="autoHideTranslator" checked />
+      Auto-hide translator on launch
+    </label>
   </div>
 </div>
 
@@ -209,15 +215,15 @@ function arabicToCistercian(num){
 
 // Simple deterministic hash -> 12-digit space
 function hashNumber(n){
-  // FNV-1a style hash implemented with BigInt to avoid mixing BigInt and Number
-  let h = 2166136261n;
+  // Fast, stable numeric hash from decimal input (not crypto)
+  let h = 2166136261 >>> 0;
   const str = String(n);
-  for (let i = 0; i < str.length; i++){
-    h ^= BigInt(str.charCodeAt(i));
-    h = (h * 16777619n) & 0xFFFFFFFFFFFFFFFFn; // keep within 64-bit
+  for(let i=0;i<str.length;i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
   }
-  // return a 12-digit number (safe in Number, < 1e12)
-  return Number(h % 1000000000000n);
+  // Return within 12 digits
+  return h % 1000000000000;
 }
 
 // amplitwistor ops from seed
@@ -254,7 +260,7 @@ function initStars(){
 initStars();
 function drawStars(){
   starCtx.fillStyle='black'; starCtx.fillRect(0,0,starCV.width,starCV.height);
-  const color=getComputedStyle(document.body).getPropertyValue('--accent-light').trim() || '#ffffff';
+  const color=getComputedStyle(document.documentElement).getPropertyValue('--accent-light').trim() || '#ffffff';
   starCtx.fillStyle=color;
   for(const s of stars){
     s.z-=STAR_SPEED; if(s.z<=0) s.z=starCV.width;
@@ -366,6 +372,9 @@ const UI = {
   panel:   document.getElementById('container')
 };
 
+// flag used to remember whether we hid the translator/ledger automatically
+let translatorAutoHidden = false;
+
 const MiniGames = {
   current: null,
   start(seed, id){
@@ -378,22 +387,37 @@ const MiniGames = {
       spherepop:'Spherepop',
       logiclab:'Logic Lab',
       vimgrove:'Vim Grove',
-      swypestream: 'Swype Stream',
-      spellpop:    'Spellpop'
+      swypestream:'Swype Stream',
+      spellpop:'Spellpop'
     }[id] || 'Mini-game');
 
-    UI.panel.classList.add('hidden');
+    // conditional panel hiding based on the checkbox
+    const autoHideEl = document.getElementById('autoHideTranslator');
+    const doAutoHide = !!(autoHideEl && autoHideEl.checked);
+
+    if (doAutoHide) {
+      UI.panel.classList.add('hidden');
+      const ledger = document.getElementById('seedLedger');
+      if (ledger) ledger.classList.add('hidden');
+      translatorAutoHidden = true;
+    } else {
+      // ensure we don't accidentally flip the flag if user left it visible
+      translatorAutoHidden = false;
+    }
+
     twCtx.clearRect(0,0,twCV.width,twCV.height);
 
-    const stop = ({
+    // pick the starter and call it to get a stop function
+    const starter = ({
       spherepop:   startSpherepop,
       logiclab:    startLogicLab,
       vimgrove:    startVimGrove,
       swypestream: startSwypeStream,
       spellpop:    startSpellpop
-    }[id] || ( ()=>function(){}))(seed);
+    }[id]) || (()=>()=>{});
+    const stopFn = starter(seed);
 
-    this.current = { id, stop };
+    this.current = { id, stop: stopFn };
   },
   stop(message='Exited'){
     if(!this.current) return;
@@ -404,7 +428,16 @@ const MiniGames = {
     UI.topbar.classList.add('hidden');
     UI.hud.classList.add('hidden');
     UI.hud.textContent = '';
-    UI.panel.classList.remove('hidden');
+
+    // restore transcript/ledger only if we hid them automatically
+    if (translatorAutoHidden) {
+      UI.panel.classList.remove('hidden');
+      const ledger = document.getElementById('seedLedger');
+      if (ledger) ledger.classList.remove('hidden');
+      translatorAutoHidden = false;
+    }
+
+    // if translator was not auto-hidden, leave user's view as-is
     twCtx.clearRect(0,0,twCV.width,twCV.height);
   }
 };
@@ -498,13 +531,13 @@ function startSpherepop(seed){
   twCV.addEventListener('click', onClick);
   raf = requestAnimationFrame(draw);
 
-  function stop(message='Exited'){
+  function stop(message='Exited'){ 
     if(raf) cancelAnimationFrame(raf);
     twCV.removeEventListener('click', onClick);
     overlayMessage(`Spherepop: ${message}  Score: ${score}`);
     setTimeout(()=>MiniGames.stop(message), 700);
   }
-  return { stop };
+  return stop;
 }
 
 /* ------ Logic Lab ------ */
@@ -526,8 +559,6 @@ function startLogicLab(seed){
       y: twCV.height/2 + Math.sin(γ+i)*60
     });
   }
-
-  const stopMessage = 'Circuit Stable';
 
   UI.hud.textContent = `Logic Lab — Goal lamp: ${targetHigh? 'HIGH':'LOW'}`;
   let raf=null, done=false;
@@ -554,7 +585,7 @@ function startLogicLab(seed){
   function onClick(ev){
     const x=ev.offsetX, y=ev.offsetY;
     for(const g of layout){
-      if(Math.abs(x-g.x)<42 && Math.abs(y-g.y)<22){
+      if(Math.abs(x - g.x) < 42 && Math.abs(y - g.y) < 22){
         if(rand()>0.5) g.a=!g.a; else g.b=!g.b;
         popSound(420, .1);
         break;
@@ -581,20 +612,20 @@ function startLogicLab(seed){
     twCtx.font='18px Courier New'; twCtx.fillStyle='var(--accent-light)';
     twCtx.fillText(`Target: ${targetHigh?'HIGH':'LOW'}`, twCV.width-90, twCV.height/2+52);
 
-    if(ok && !done){ done=true; popSound(640,.18); setTimeout(()=>stop(stopMessage), 350); return; }
+    if(ok && !done){ done=true; popSound(640,.18); setTimeout(()=>stop('Circuit Stable'), 350); return; }
     raf=requestAnimationFrame(draw);
   }
 
   twCV.addEventListener('click', onClick);
   raf=requestAnimationFrame(draw);
 
-  function stop(message='Exited'){
+  function stop(message='Exited'){ 
     if(raf) cancelAnimationFrame(raf);
     twCV.removeEventListener('click', onClick);
     overlayMessage(`Logic Lab: ${message}`);
     setTimeout(()=>MiniGames.stop(message), 600);
   }
-  return { stop };
+  return stop;
 }
 
 /* ------ Vim Grove ------ */
@@ -609,7 +640,7 @@ function startVimGrove(seed){
   let last=performance.now();
   UI.hud.textContent = `Vim Grove — perform :${target} in rhythm`;
 
-  function draw(msg,color='#00ff00'){
+  function draw(msg,color='#00ff00'){ 
     twCtx.clearRect(0,0,twCV.width,twCV.height);
     twCtx.font='56px Courier New'; twCtx.textAlign='center';
     twCtx.fillStyle=color; twCtx.fillText(`:${target}`, twCV.width/2, twCV.height/2);
@@ -632,12 +663,12 @@ function startVimGrove(seed){
 
   window.addEventListener('keydown', onKey, true);
 
-  function stop(message='Exited'){
+  function stop(message='Exited'){ 
     window.removeEventListener('keydown', onKey, true);
     overlayMessage(`Vim Grove: ${message}`);
     setTimeout(()=>MiniGames.stop(message), 600);
   }
-  return { stop };
+  return stop;
 }
 
 /* ------ Swype Stream ------ */
@@ -700,17 +731,17 @@ function startSwypeStream(seed){
   }
 
   twCV.addEventListener('pointerdown', onDown);
-  twCV.addEventListener('pointermove', onMove);
-  twCV.addEventListener('pointerup',   onUp);
+twCV.addEventListener('pointermove', onMove);
+twCV.addEventListener('pointerup',   onUp);
 
-  function stop(message='Exited'){
+  function stop(message='Exited'){ 
     twCV.removeEventListener('pointerdown', onDown);
     twCV.removeEventListener('pointermove', onMove);
     twCV.removeEventListener('pointerup',   onUp);
     overlayMessage(`Swype Stream: ${message}`);
     setTimeout(()=>MiniGames.stop(message), 700);
   }
-  return { stop };
+  return stop;
 }
 
 /* ------ Spellpop ------ */
@@ -741,7 +772,7 @@ function startSpellpop(seed){
     const now=performance.now(); const dt=now-last; last=now;
     if(e.key.length===1){
       typed+=e.key; const inTempo=Math.abs(dt-beat)<=beat*tol;
-      popSound(inTempo? 520 : 320, .1);
+      popSound(inTempo? 520 : 300, .1);
       draw();
     } else if (e.key==='Backspace'){ typed=typed.slice(0,-1); draw(); }
     if(typed===target){ stop('Perfect!'); }
@@ -749,12 +780,12 @@ function startSpellpop(seed){
 
   window.addEventListener('keydown', onKey, true);
 
-  function stop(message='Exited'){
+  function stop(message='Exited'){ 
     window.removeEventListener('keydown', onKey, true);
     overlayMessage(`Spellpop: ${message}`);
     setTimeout(()=>MiniGames.stop(message), 700);
   }
-  return { stop };
+  return stop;
 }
 
 /* =========================
