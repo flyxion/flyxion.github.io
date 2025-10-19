@@ -378,8 +378,8 @@ const MiniGames = {
       spherepop:'Spherepop',
       logiclab:'Logic Lab',
       vimgrove:'Vim Grove',
-      swypestream:'Swype Stream',
-      spellpop:'Spellpop'
+      swypestream: 'Swype Stream',
+      spellpop:    'Spellpop'
     }[id] || 'Mini-game');
 
     UI.panel.classList.add('hidden');
@@ -554,7 +554,7 @@ function startLogicLab(seed){
   function onClick(ev){
     const x=ev.offsetX, y=ev.offsetY;
     for(const g of layout){
-      if(Math.abs(x-g.x)<42 && Math.abs(y=g.y)<22){
+      if(Math.abs(x-g.x)<42 && Math.abs(y-g.y)<22){
         if(rand()>0.5) g.a=!g.a; else g.b=!g.b;
         popSound(420, .1);
         break;
@@ -741,7 +741,7 @@ function startSpellpop(seed){
     const now=performance.now(); const dt=now-last; last=now;
     if(e.key.length===1){
       typed+=e.key; const inTempo=Math.abs(dt-beat)<=beat*tol;
-      popSound(inTempo? 520 : 300, .1);
+      popSound(inTempo? 520 : 320, .1);
       draw();
     } else if (e.key==='Backspace'){ typed=typed.slice(0,-1); draw(); }
     if(typed===target){ stop('Perfect!'); }
